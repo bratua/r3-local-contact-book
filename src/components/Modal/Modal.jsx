@@ -1,8 +1,9 @@
 // import Box from 'components/Box/Box';
 import { PureComponent } from 'react';
-import { BackDrop, ModalWindow } from './Modal.styled';
+import { BackDrop, ModalWindow, ModalTitle } from './Modal.styled';
 import { Editor } from 'components/Editor';
 import editorContext from '../Context/editor-context';
+import { FiXCircle } from 'react-icons/fi';
 
 export class Modal extends PureComponent {
   componentDidMount() {
@@ -15,29 +16,40 @@ export class Modal extends PureComponent {
 
   escPressHendler = e => {
     if (e.code === 'Escape') {
-      this.props.onClose();
+      this.props.close();
     }
   };
 
   backDropClickClose = e => {
     if (e.currentTarget === e.target) {
-      this.props.onClose();
+      this.props.close();
     }
   };
 
   render() {
+    const { typeCloseButton, close } = this.props;
+    // console.log(theme);
     return (
       <BackDrop onClick={this.backDropClickClose}>
         <ModalWindow>
-          <button type="button" onClick={this.props.onClose}>
-            X Close
+          <button
+            className="modal-close-button"
+            type={typeCloseButton}
+            onClick={close}
+          >
+            <FiXCircle size="30" />
           </button>
+
           <editorContext.Consumer>
             {editorContext => (
-              <Editor
-                initialValues={editorContext.initialValues}
-                onSubmitForm={editorContext.onSubmitForm}
-              />
+              <>
+                <ModalTitle>{editorContext.modalName}</ModalTitle>
+                <Editor
+                  initialValues={editorContext.initialValues}
+                  onSubmitForm={editorContext.onSubmitForm}
+                  icon={editorContext.buttonIcon}
+                />
+              </>
             )}
           </editorContext.Consumer>
         </ModalWindow>

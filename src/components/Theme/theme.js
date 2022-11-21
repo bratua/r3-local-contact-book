@@ -57,12 +57,7 @@ export const theme = Object.freeze({
   },
   //? ------------------------------
   sizes: {
-    userProfile: '500px',
-    avatarSize: '200px',
-    userStatsHeight: '150px',
-    statisticsWidth: '350px',
-    transactionTableWidth: '350px',
-    statisticsItemHeight: '60px',
+    iconButtonSize: 40,
   },
   //? ------------------------------
   space: [0, 2, 4, 6, 8, 10, 12, 16, 25, 32, 64, '0 auto'],

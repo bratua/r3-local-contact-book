@@ -1,9 +1,23 @@
 import { PureComponent } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactsList } from 'components/PhoneBook/ContactsList';
-import Box from 'components/Box/Box';
 import { Modal } from 'components/Modal';
 import editorContext from '../Context/editor-context.js';
+import { FiEdit, FiSave, FiTrash2, FiPlusCircle } from 'react-icons/fi';
+import { IconButton } from 'components/Button';
+import { AppStyled } from './App.styled';
+
+const BUTTON_ICONS = {
+  addIcon: <FiPlusCircle size="30" style={{ verticalAlign: 'middle' }} />,
+  saveIcon: <FiSave size="30" style={{ verticalAlign: 'middle' }} />,
+  editIcon: <FiEdit size="20" style={{ verticalAlign: 'middle' }} />,
+  deleteIcon: <FiTrash2 size="20" style={{ verticalAlign: 'middle' }} />,
+};
+
+const MODAL_NAMES = {
+  add: 'Добавить контакт',
+  edit: 'Редактировать контакт',
+};
 
 export class App extends PureComponent {
   state = {
@@ -27,7 +41,7 @@ export class App extends PureComponent {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_, prevState) {
     if (this.state.contacts !== prevState.contacts) {
       localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
       this.setState({ showModal: false });
@@ -37,6 +51,7 @@ export class App extends PureComponent {
   toggleModal = () => {
     this.setState(prevState => ({
       showModal: !prevState.showModal,
+      editThisContact: null,
     }));
   };
 
@@ -55,27 +70,25 @@ export class App extends PureComponent {
     });
   };
 
-  handleEditContact = ({ name, number, id, currentIndex }) => {
-    console.log('отредактированный', name, number, id, currentIndex);
+  handleEditContact = ({ name, number, id }) => {
+    this.setState(prevState => ({
+      editThisContact: null,
+      contacts: prevState.contacts.map(contact =>
+        contact.id === id ? { name, number, id } : contact
+      ),
+    }));
 
     this.toggleModal();
-    const editedContacts = [...this.state.contacts];
-    editedContacts.splice(currentIndex, 1, { name, number, id });
+  };
 
-    // this.setState(prevState => {
-    //   return {
-    //     contacts: [...prevState.contacts].splice(currentIndex, 1, {
-    //       name,
-    //       number,
-    //       id,
-    //     }),
-    //     editThisContact: null,
-    //   };
-    // });
+  editContact = id => {
+    this.toggleModal();
+    const currentContact = this.state.contacts.filter(contact => {
+      return contact.id === id;
+    });
 
-    this.setState({
-      editThisContact: null,
-      contacts: [...editedContacts],
+    return this.setState({
+      editThisContact: { ...currentContact[0] },
     });
   };
 
@@ -100,58 +113,53 @@ export class App extends PureComponent {
     });
   };
 
-  editContact = id => {
-    let currentIndex = null;
-    const currentContact = this.state.contacts.filter((contact, index) => {
-      if (contact.id === id) {
-        currentIndex = index;
-      }
-      return contact.id === id;
-    });
-    // console.log('currentContact', currentContact[0]);
-    this.toggleModal();
-    return this.setState({
-      editThisContact: { ...currentContact[0], currentIndex },
-    });
-  };
-
   render() {
     const filtredContacts = this.filtred();
     const { filter, showModal, editThisContact } = this.state;
+    const showModalCondition = !editThisContact
+      ? {
+          //* ADD button condition
+          initialValues: this.initialValues,
+          onSubmitForm: this.handleSubmitForm,
+          buttonIcon: BUTTON_ICONS.addIcon,
+          modalName: MODAL_NAMES.add,
+        }
+      : {
+          //* EDIT button condition
+          initialValues: this.state.editThisContact,
+          onSubmitForm: this.handleEditContact,
+          buttonIcon: BUTTON_ICONS.saveIcon,
+          modalName: MODAL_NAMES.edit,
+        };
+
+    console.log(this.props);
+
     return (
-      <Box>
-        <button type="button" onClick={this.toggleModal}>
-          Add contact
-        </button>
-        {showModal && !editThisContact ? (
-          <editorContext.Provider
-            value={{
-              initialValues: this.initialValues,
-              onSubmitForm: this.handleSubmitForm,
-            }}
-          >
-            <Modal onClose={this.toggleModal} />
+      <AppStyled>
+        <IconButton
+          className="add-button"
+          type="button"
+          onClick={this.toggleModal}
+        >
+          {BUTTON_ICONS.addIcon}
+        </IconButton>
+
+        {showModal ? (
+          <editorContext.Provider value={showModalCondition}>
+            <Modal close={this.toggleModal} typeCloseButton="button" />
           </editorContext.Provider>
         ) : null}
 
-        {editThisContact && showModal ? (
-          <editorContext.Provider
-            value={{
-              initialValues: this.state.editThisContact,
-              onSubmitForm: this.handleEditContact,
-            }}
-          >
-            <Modal onClose={this.toggleModal} />
-          </editorContext.Provider>
-        ) : null}
         <ContactsList
           contacts={filtredContacts}
           onDeleteContact={this.deleteContact}
           onEditContact={this.editContact}
           filterValue={filter}
           filterOnChange={this.filterChange}
+          editIcon={BUTTON_ICONS.editIcon}
+          deleteIcon={BUTTON_ICONS.deleteIcon}
         />
-      </Box>
+      </AppStyled>
     );
   }
 }

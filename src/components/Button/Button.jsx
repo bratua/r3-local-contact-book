@@ -1,3 +1,9 @@
-import { PureComponent } from 'react';
+import { IconButtonStyled } from './Button.styled';
 
-export class Button extends PureComponent {}
+export const IconButton = ({ onClick, type, children }) => {
+  return (
+    <IconButtonStyled type={type} onClick={onClick}>
+      {children}
+    </IconButtonStyled>
+  );
+};

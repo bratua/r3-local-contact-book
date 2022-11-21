@@ -1,7 +1,9 @@
 import { PureComponent } from 'react';
-import { Formik, Field, ErrorMessage, Form } from 'formik';
+import { Formik, Form } from 'formik';
 import * as yup from 'yup';
 import { nanoid } from 'nanoid';
+import { IconButton } from 'components/Button';
+import { TitleFields, Fields, ErrorStyled } from './Editor.styled';
 
 export class Editor extends PureComponent {
   schema = yup.object().shape({
@@ -20,47 +22,43 @@ export class Editor extends PureComponent {
   nameId = nanoid();
   numberId = nanoid();
 
-  handleSubmit = ({ name, number, id, currentIndex }, actions) => {
-    this.props.onSubmitForm({ name, number, id, currentIndex });
+  handleSubmit = ({ name, number, id }, actions) => {
+    this.props.onSubmitForm({ name, number, id });
     actions.resetForm();
   };
 
   render() {
-    // const { id, name, number, currentIndex } = this.props.initialValues;
-
-    // console.log('initialValues', this.props.initialValues);
-
+    const { initialValues, icon } = this.props;
     return (
       <Formik
-        initialValues={this.props.initialValues}
+        initialValues={initialValues}
         validationSchema={this.schema}
         onSubmit={this.handleSubmit}
       >
         <Form autoComplete="off">
           <label htmlFor={this.nameId}>
-            <h3>Name</h3>
-
-            <Field
+            <TitleFields>Name</TitleFields>
+            <Fields
               id={this.nameId}
               type="text"
               name="name"
               title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
               autoFocus
-            ></Field>
-            <ErrorMessage name="name" component="div" />
+            ></Fields>
+            <ErrorStyled name="name" component="div" />
           </label>
 
           <label htmlFor={this.numberId}>
-            <h3>Number</h3>
-            <Field
+            <TitleFields>Number</TitleFields>
+            <Fields
               id={this.numberId}
               type="tel"
               name="number"
               title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            ></Field>
-            <ErrorMessage name="number" component="div" />
+            ></Fields>
+            <ErrorStyled name="number" component="div" />
           </label>
-          <button type="submit">Add contact</button>
+          <IconButton type="submit">{icon}</IconButton>
         </Form>
       </Formik>
     );
