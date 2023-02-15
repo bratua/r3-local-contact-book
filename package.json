@@ -1,8 +1,8 @@
 {
-  "name": "Local contact book",
+  "name": "redux-contact-book",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://bratua.github.io/r3-local-contact-book/",
+  "homepage": "https://bratua.github.io/redux-contact-book/",
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
